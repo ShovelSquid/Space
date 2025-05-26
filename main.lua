@@ -1,28 +1,5 @@
-<<<<<<< HEAD
-local tiny = require "tiny"
-local C = require "components"
-local Camera = require "camera"
-local Entity = require "prefabs.blob"
-local Player = require "prefabs.player"
-local Move = require "systems.move"
-local Render = require "systems.render"
-
-local world = tiny.world()
-=======
 local Entity = require("entity")
 local Player = require("player")
->>>>>>> parent of 177faf5 (adding tiny ecs)
-
-function world:draw(...)
-  for i = 1, #self.systems do
-    local s = self.systems[i]
-    if s.draw then s:draw(...) end
-  end
-end
-
-world:addSystem(Move, 1)
-world:addSystem(Render, 2)
-
 
 local scene = {
     cellSize = 40,
@@ -44,21 +21,6 @@ local camera = {
 
 local entities = {}
 
-<<<<<<< HEAD
--- Systems
-
--- -- -- --
-
-player = Player(0, 0, scene.cellsize)
-world:addEntity(player)
-
-for i = 1, 5 do
-    local e = Entity(math.random(-300, 300), math.random(-300, 300), scene.cellsize)
-    world:addEntity(e)
-end
-
-=======
->>>>>>> parent of 177faf5 (adding tiny ecs)
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
     
@@ -69,23 +31,6 @@ function love.load()
 end
 
 function love.update(dt)
-<<<<<<< HEAD
-    -- -- WASD movement
-    -- player:update(dt, camera, true)
-    -- for _, e in ipairs(entities) do
-    --     e:update(dt, camera)
-    --     if e:isMouseOver(camera.mousex, camera.mousey) then scene.hoveredEntity = e end
-    -- end
-    -- if scene.hoveredEntity ~= nil then
-    --     if scene.hoveredEntity:isMouseOver(camera.mousex, camera.mousey) then
-    --     else
-    --         scene.hoveredEntity = nil
-    --     end
-    -- end
-
-    world:update(dt)
-    camera:update(player.position.x, player.position.y)
-=======
     -- WASD movement
     player:update(dt, true)
     for _, e in ipairs(entities) do
@@ -115,7 +60,6 @@ function updateCamera()
     elseif player.y > bottomBound then
         camera.y = player.y - 2 * screenHeight / camera.boundFrac
     end
->>>>>>> parent of 177faf5 (adding tiny ecs)
 end
 
 function love.wheelmoved(x, y)
@@ -136,10 +80,6 @@ function love.draw()
     camera:apply()
 
     drawGrid(scene.cellSize)
-
-    world:draw()
-
-    -- drawHover()
 
     camera:clear()
 
