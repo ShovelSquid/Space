@@ -8,6 +8,17 @@ local Render = require "systems.render"
 
 local world = tiny.world()
 
+function world:draw(...)
+  for i = 1, #self.systems do
+    local s = self.systems[i]
+    if s.draw then s:draw(...) end
+  end
+end
+
+world:addSystem(Move, 1)
+world:addSystem(Render, 2)
+
+
 local scene = {
     cellSize = 40,
     hoveredEntity = nil,
@@ -32,46 +43,41 @@ local entities = {}
 
 -- Systems
 
-world:addSystem(Move)
-world:addSystem(Render)
-
 -- -- -- --
 
+player = Player(0, 0, scene.cellsize)
+world:addEntity(player)
 
-
-
-
-
-
-
-
+for i = 1, 5 do
+    local e = Entity(math.random(-300, 300), math.random(-300, 300), scene.cellsize)
+    world:addEntity(e)
+end
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
-    player = Player.new(0, 0, scene.cellSize)
+    
     -- table.insert(entities, player)
 
     -- add other entities
-    for i = 1, 5 do
-        table.insert(entities, Entity.new(math.random(-300, 300), math.random(-300, 300), scene.cellSize))
-    end
+    
 end
 
 function love.update(dt)
-    -- WASD movement
-    player:update(dt, camera, true)
-    for _, e in ipairs(entities) do
-        e:update(dt, camera)
-        if e:isMouseOver(camera.mousex, camera.mousey) then scene.hoveredEntity = e end
-    end
-    if scene.hoveredEntity ~= nil then
-        if scene.hoveredEntity:isMouseOver(camera.mousex, camera.mousey) then
-        else
-            scene.hoveredEntity = nil
-        end
-    end
+    -- -- WASD movement
+    -- player:update(dt, camera, true)
+    -- for _, e in ipairs(entities) do
+    --     e:update(dt, camera)
+    --     if e:isMouseOver(camera.mousex, camera.mousey) then scene.hoveredEntity = e end
+    -- end
+    -- if scene.hoveredEntity ~= nil then
+    --     if scene.hoveredEntity:isMouseOver(camera.mousex, camera.mousey) then
+    --     else
+    --         scene.hoveredEntity = nil
+    --     end
+    -- end
 
-    camera:update(player.x, player.y)
+    world:update(dt)
+    camera:update(player.position.x, player.position.y)
 end
 
 function love.wheelmoved(x, y)
@@ -86,17 +92,23 @@ end
 
 
 function love.draw()
-    love.graphics.push()
-    love.graphics.scale(camera.scale)
-    love.graphics.translate(-camera.x, -camera.y)
+    -- love.graphics.push()
+    -- love.graphics.scale(camera.scale)
+    -- love.graphics.translate(-camera.x, -camera.y)
+    camera:apply()
 
     drawGrid(scene.cellSize)
-    drawHover()
 
-    player:draw(camera)
-    for _, e in ipairs(entities) do
-        e:draw(camera)
-    end
+    world:draw()
+
+    -- drawHover()
+
+    camera:clear()
+
+    -- player:draw(camera)
+    -- for _, e in ipairs(entities) do
+    --     e:draw(camera)
+    -- end
 
     -- Get angle to mouse (adjusted for camera and zoom)
     -- local mx, my = love.mouse.getPosition()
@@ -114,7 +126,7 @@ function love.draw()
     -- local cy = player.y + math.sin(angle) * (player.radius + player.radius/2)
     -- love.graphics.circle("fill", cx, cy, 5)
 
-    love.graphics.pop()
+    -- love.graphics.pop()
 end
 
 function drawHover()

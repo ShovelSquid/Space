@@ -1,4 +1,4 @@
-local C = "components"
+local C = require "components"
 
 return function()
     return {

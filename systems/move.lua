@@ -1,8 +1,8 @@
 local tiny = require "tiny"
 
-local Move = tiny.system()
+local Move = tiny.processingSystem()
 Move.filter = tiny.requireAll("position", "velocity")
-function Move:update(e, dt)
+function Move:process(e, dt)
     e.position.x = e.position.x + e.velocity.dx * dt
     e.position.y = e.position.y + e.velocity.dy * dt
 end

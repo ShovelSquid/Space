@@ -1,9 +1,9 @@
-local C = require "components"
-local blob = require "prefabs.blob"
+local C = require("components")
+local blob = require("prefabs.blob")
 
-return function(x, y)
-    local p = blob(x, y)
-    p.playerTag = C.playerTag()
+return function(x, y, size)
+    local p = blob(x, y, size)
+    p.player = true
     return p
 end
 

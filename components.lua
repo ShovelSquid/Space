@@ -1,53 +1,48 @@
 return {
     position = function(x, y)
         return {
-            x = x,
-            y = y
+            x = x or 0,
+            y = y or 0
         }
     end,
     velocity = function(x, y)
         return {
-            dx = x,
-            dy = y
+            dx = x or 0,
+            dy = y or 0
         }
     end,
     size = function(s)
         return {
-            s = s,
+            s = s or 0,
             r = s/2
         }
     end,
     health = function(h)
         return {
-            hp = h
+            hp = h or 0
         }
     end,
     name = function(s)
         return {
-            label = s
+            label = s or ""
         }
     end,
     color = function(r, g, b, a)
         return {
-            r = r,
-            g = g,
-            b = b,
-            a = a
+            r = r or 0,
+            g = g or 0,
+            b = b or 0,
+            a = a or 0
         }
     end,
     lineWidth = function(w)
         return {
-            w = w
-        }
-    end,
-    playerTag = function(bool)
-        return {
-            yes = bool or true,
+            w = w or 0
         }
     end,
     parent = function(id)
         return {
-            id = id,
+            id = id or 0
         }
     end,
 }
