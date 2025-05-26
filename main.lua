@@ -1,8 +1,14 @@
 local Entity = require("entity")
 local Player = require("player")
+local Camera = require("camera")
+local tiny = require "tiny"
+local C = require "components"
+
+local world = tiny.world()
 
 local scene = {
     cellSize = 40,
+    hoveredEntity = nil,
 }
 
 local player = {
@@ -12,14 +18,48 @@ local player = {
     speed = 200
 }
 
-local camera = {
-    x = 0,
-    y = 0,
-    scale = 1,
-    boundFrac = 2.5,
-}
+-- local camera = {
+--     x = 0,
+--     y = 0,
+--     scale = 1,
+--     boundFrac = 2.5,
+-- }
+local camera = Camera.new(0, 0)
 
 local entities = {}
+
+-- Systems
+local movementSystem = tiny.system()
+movementSystem.filter = tiny.requireAll("position", "velocity")
+function movementSystem:update(e, dt)
+    e.position.x = e.position.x + e.velocity.dx * dt
+    e.position.y = e.position.y + e.velocity.dy * dt
+end
+
+
+local renderSystem = tiny.system()
+renderSystem.filter = tiny.requireAll("position", "radius", "color", "lineWidth")
+function renderSystem:draw(e)
+    love.graphics.push()
+    love.graphics.setColor(e.color.r, e.color.g, e.color.b, e.color.a)
+    love.graphics.setLineWidth(e.lineWidth.w)
+    love.graphics.circle("line", e.position.x, e.position.y, e.radius.r)
+    love.graphics.pop()
+end
+
+world:addSystem(movementSystem)
+world:addSystem(renderSystem)
+
+-- -- -- --
+
+
+
+
+
+
+
+
+
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
@@ -34,34 +74,19 @@ end
 
 function love.update(dt)
     -- WASD movement
-    player:update(dt, true)
+    player:update(dt, camera, true)
     for _, e in ipairs(entities) do
-        e:update(dt)
+        e:update(dt, camera)
+        if e:isMouseOver(camera.mousex, camera.mousey) then scene.hoveredEntity = e end
+    end
+    if scene.hoveredEntity ~= nil then
+        if scene.hoveredEntity:isMouseOver(camera.mousex, camera.mousey) then
+        else
+            scene.hoveredEntity = nil
+        end
     end
 
-    updateCamera()
-end
-
-function updateCamera()
-    local screenWidth = love.graphics.getWidth() / camera.scale
-    local screenHeight = love.graphics.getHeight() / camera.scale
-
-    local leftBound = camera.x + screenWidth / camera.boundFrac
-    local rightBound = camera.x + 2 * screenWidth / camera.boundFrac
-    local topBound = camera.y + screenHeight / camera.boundFrac
-    local bottomBound = camera.y + 2 * screenHeight / camera.boundFrac
-
-    if player.x < leftBound then
-        camera.x = player.x - screenWidth / camera.boundFrac
-    elseif player.x > rightBound then
-        camera.x = player.x - 2 * screenWidth / camera.boundFrac
-    end
-
-    if player.y < topBound then
-        camera.y = player.y - screenHeight / camera.boundFrac
-    elseif player.y > bottomBound then
-        camera.y = player.y - 2 * screenHeight / camera.boundFrac
-    end
+    camera:update(player.x, player.y)
 end
 
 function love.wheelmoved(x, y)
@@ -81,6 +106,7 @@ function love.draw()
     love.graphics.translate(-camera.x, -camera.y)
 
     drawGrid(scene.cellSize)
+    drawHover()
 
     player:draw(camera)
     for _, e in ipairs(entities) do
@@ -106,6 +132,23 @@ function love.draw()
     love.graphics.pop()
 end
 
+function drawHover()
+    if scene.hoveredEntity then
+        local ex, ey = scene.hoveredEntity.x, scene.hoveredEntity.y
+        --scamera:worldToScreen(scene.hoveredEntity.x, scene.hoveredEntity.y)
+        -- tiny white circle
+        love.graphics.push()
+        love.graphics.setColor(1, 1, 1, 0.8)
+        love.graphics.setLineWidth(2)
+        love.graphics.circle("line", ex, ey, scene.hoveredEntity.radius + 3)
+
+        -- health and name
+        local label = string.format("%s \n(%d hp)", scene.hoveredEntity.name, scene.hoveredEntity.health)
+        love.graphics.print(label, ex + 30, ey - 20)
+        love.graphics.pop()
+    end
+end
+
 function drawGrid(cellSize)
     love.graphics.push()
     love.graphics.setColor(0.3, 0.3, 0.3)
@@ -121,10 +164,10 @@ function drawGrid(cellSize)
     local endX = camera.x + screenWidth
     local endY = camera.y + screenHeight
 
-    for x = startX, endX + cellSize, cellSize do
+    for x = startX, endX, cellSize do
         love.graphics.line(x, startY, x, endY)
     end
-    for y = startY, endY + cellSize, cellSize do
+    for y = startY, endY, cellSize do
         love.graphics.line(startX, y, endX, y)
     end
     love.graphics.pop()
