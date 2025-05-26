@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 local tiny = require "tiny"
 local C = require "components"
 local Camera = require "camera"
@@ -7,6 +8,10 @@ local Move = require "systems.move"
 local Render = require "systems.render"
 
 local world = tiny.world()
+=======
+local Entity = require("entity")
+local Player = require("player")
+>>>>>>> parent of 177faf5 (adding tiny ecs)
 
 function world:draw(...)
   for i = 1, #self.systems do
@@ -21,7 +26,6 @@ world:addSystem(Render, 2)
 
 local scene = {
     cellSize = 40,
-    hoveredEntity = nil,
 }
 
 local player = {
@@ -31,16 +35,16 @@ local player = {
     speed = 200
 }
 
--- local camera = {
---     x = 0,
---     y = 0,
---     scale = 1,
---     boundFrac = 2.5,
--- }
-local camera = Camera.new(0, 0)
+local camera = {
+    x = 0,
+    y = 0,
+    scale = 1,
+    boundFrac = 2.5,
+}
 
 local entities = {}
 
+<<<<<<< HEAD
 -- Systems
 
 -- -- -- --
@@ -53,6 +57,8 @@ for i = 1, 5 do
     world:addEntity(e)
 end
 
+=======
+>>>>>>> parent of 177faf5 (adding tiny ecs)
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
     
@@ -63,6 +69,7 @@ function love.load()
 end
 
 function love.update(dt)
+<<<<<<< HEAD
     -- -- WASD movement
     -- player:update(dt, camera, true)
     -- for _, e in ipairs(entities) do
@@ -78,6 +85,37 @@ function love.update(dt)
 
     world:update(dt)
     camera:update(player.position.x, player.position.y)
+=======
+    -- WASD movement
+    player:update(dt, true)
+    for _, e in ipairs(entities) do
+        e:update(dt)
+    end
+
+    updateCamera()
+end
+
+function updateCamera()
+    local screenWidth = love.graphics.getWidth() / camera.scale
+    local screenHeight = love.graphics.getHeight() / camera.scale
+
+    local leftBound = camera.x + screenWidth / camera.boundFrac
+    local rightBound = camera.x + 2 * screenWidth / camera.boundFrac
+    local topBound = camera.y + screenHeight / camera.boundFrac
+    local bottomBound = camera.y + 2 * screenHeight / camera.boundFrac
+
+    if player.x < leftBound then
+        camera.x = player.x - screenWidth / camera.boundFrac
+    elseif player.x > rightBound then
+        camera.x = player.x - 2 * screenWidth / camera.boundFrac
+    end
+
+    if player.y < topBound then
+        camera.y = player.y - screenHeight / camera.boundFrac
+    elseif player.y > bottomBound then
+        camera.y = player.y - 2 * screenHeight / camera.boundFrac
+    end
+>>>>>>> parent of 177faf5 (adding tiny ecs)
 end
 
 function love.wheelmoved(x, y)
@@ -129,23 +167,6 @@ function love.draw()
     -- love.graphics.pop()
 end
 
-function drawHover()
-    if scene.hoveredEntity then
-        local ex, ey = scene.hoveredEntity.x, scene.hoveredEntity.y
-        --scamera:worldToScreen(scene.hoveredEntity.x, scene.hoveredEntity.y)
-        -- tiny white circle
-        love.graphics.push()
-        love.graphics.setColor(1, 1, 1, 0.8)
-        love.graphics.setLineWidth(2)
-        love.graphics.circle("line", ex, ey, scene.hoveredEntity.radius + 3)
-
-        -- health and name
-        local label = string.format("%s \n(%d hp)", scene.hoveredEntity.name, scene.hoveredEntity.health)
-        love.graphics.print(label, ex + 30, ey - 20)
-        love.graphics.pop()
-    end
-end
-
 function drawGrid(cellSize)
     love.graphics.push()
     love.graphics.setColor(0.3, 0.3, 0.3)
@@ -161,10 +182,10 @@ function drawGrid(cellSize)
     local endX = camera.x + screenWidth
     local endY = camera.y + screenHeight
 
-    for x = startX, endX, cellSize do
+    for x = startX, endX + cellSize, cellSize do
         love.graphics.line(x, startY, x, endY)
     end
-    for y = startY, endY, cellSize do
+    for y = startY, endY + cellSize, cellSize do
         love.graphics.line(startX, y, endX, y)
     end
     love.graphics.pop()
