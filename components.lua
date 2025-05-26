@@ -11,9 +11,10 @@ return {
             dy = y
         }
     end,
-    radius = function(r)
+    size = function(s)
         return {
-            r = r
+            s = s,
+            r = s/2
         }
     end,
     health = function(h)
@@ -38,5 +39,15 @@ return {
         return {
             w = w
         }
-    end
+    end,
+    playerTag = function(bool)
+        return {
+            yes = bool or true,
+        }
+    end,
+    parent = function(id)
+        return {
+            id = id,
+        }
+    end,
 }

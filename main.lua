@@ -1,8 +1,10 @@
-local Entity = require("entity")
-local Player = require("player")
-local Camera = require("camera")
 local tiny = require "tiny"
 local C = require "components"
+local Camera = require "camera"
+local Entity = require "prefabs.blob"
+local Player = require "prefabs.player"
+local Move = require "systems.move"
+local Render = require "systems.render"
 
 local world = tiny.world()
 
@@ -29,26 +31,9 @@ local camera = Camera.new(0, 0)
 local entities = {}
 
 -- Systems
-local movementSystem = tiny.system()
-movementSystem.filter = tiny.requireAll("position", "velocity")
-function movementSystem:update(e, dt)
-    e.position.x = e.position.x + e.velocity.dx * dt
-    e.position.y = e.position.y + e.velocity.dy * dt
-end
 
-
-local renderSystem = tiny.system()
-renderSystem.filter = tiny.requireAll("position", "radius", "color", "lineWidth")
-function renderSystem:draw(e)
-    love.graphics.push()
-    love.graphics.setColor(e.color.r, e.color.g, e.color.b, e.color.a)
-    love.graphics.setLineWidth(e.lineWidth.w)
-    love.graphics.circle("line", e.position.x, e.position.y, e.radius.r)
-    love.graphics.pop()
-end
-
-world:addSystem(movementSystem)
-world:addSystem(renderSystem)
+world:addSystem(Move)
+world:addSystem(Render)
 
 -- -- -- --
 
